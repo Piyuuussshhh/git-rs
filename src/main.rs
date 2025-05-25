@@ -3,9 +3,14 @@ use std::env;
 mod commands;
 use commands::{cat_file, hash_object, init, Commands};
 
+mod objects;
+mod traits;
+mod utils;
+mod constants;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
-    println!("Args: {args:?}");
+    // println!("Args: {args:?}");
     match Commands::from(&args[1]) {
         Commands::Init => init(),
         Commands::HashObject => print!(

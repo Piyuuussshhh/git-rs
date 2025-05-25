@@ -1,0 +1,1 @@
+pub const COMMIT_MESSAGE: &str = "commit_message";
