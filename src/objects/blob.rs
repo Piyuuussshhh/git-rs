@@ -6,19 +6,33 @@ use std::{
 };
 
 use crate::{
-    traits::{ObjectDeserialize, ObjectSerialize},
+    objects::GitObject,
     utils::{generate_sha1, zlib_decompress},
 };
 
-pub struct Blob;
+#[derive(Default)]
+pub struct Blob {
+    pub path: String,
+    pub size: usize,
+    pub content: String,
+}
 
 impl Blob {
-    pub fn new() -> Self {
-        Blob {}
+    pub fn new(path: String) -> Self {
+        Self { path: path, size: Default::default(), content: Default::default() }
     }
 }
 
-impl ObjectSerialize for Blob {
+impl ToString for Blob {
+    fn to_string(&self) -> String {
+        String::from("blob")
+    }
+}
+
+impl GitObject for Blob {
+    type SerializerArg<'a> = &'a str;
+    type DeserializerArg<'b> = ();
+
     fn serialize(&self, path: &str) -> String {
         // Opening the file containing all the content that needs to be versioned.
         // !PLEASE FOR THE LOVE OF GOD MAKE SURE THAT THE TEXT FILE IS UTF-8 ENCODED AND NOT ANYTHING ELSE LIKE UTF8 WITH BOM OR UTF16 LE OR SOME SHIT.
@@ -54,12 +68,10 @@ impl ObjectSerialize for Blob {
 
         sha1
     }
-}
 
-impl ObjectDeserialize<[String; 3]> for Blob {
-    fn deserialize(sha1: &str) -> [String; 3] {
+    fn deserialize(&mut self, _: ()) {
         let mut encrypted_content: Vec<u8> = Vec::new();
-        zlib_decompress(sha1, &mut encrypted_content);
+        zlib_decompress(&self.path, &mut encrypted_content);
 
         let decrypted_content = encrypted_content
             .iter()
@@ -82,10 +94,13 @@ impl ObjectDeserialize<[String; 3]> for Blob {
             .captures(&decrypted_content)
             .expect("[ERROR] Couldn't find content");
 
-        [
-            String::from("blob"),
-            String::from(&size[1]),
-            String::from(&content[1]),
-        ]
+        // Blob {
+        //     path: self.path.clone(),
+        //     size: size[1].parse::<usize>().expect("[Error] Could not parse size"),
+        //     content: String::from(&content[1]),
+        // }
+
+        self.size = size[1].parse::<usize>().expect("[Error] Could not parse size");
+        self.content = String::from(&content[1]);
     }
 }

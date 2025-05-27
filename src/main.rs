@@ -4,7 +4,6 @@ mod commands;
 use commands::{cat_file, hash_object, init, Commands};
 
 mod objects;
-mod traits;
 mod utils;
 mod constants;
 
@@ -13,7 +12,7 @@ fn main() {
     // println!("Args: {args:?}");
     match Commands::from(&args[1]) {
         Commands::Init => init(),
-        Commands::HashObject => print!(
+        Commands::HashObject => println!(
             "{}",
             hash_object(
                 if args.contains(&"--stdin".to_string()) {
@@ -28,7 +27,7 @@ fn main() {
                 },
             )
         ),
-        Commands::CatFile => print!(
+        Commands::CatFile => println!(
             "{}",
             cat_file(
                 if args.len() > 3 {

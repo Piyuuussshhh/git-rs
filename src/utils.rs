@@ -19,10 +19,8 @@ pub fn generate_sha1(content: &str) -> String {
     format!("{}", encode(res))
 }
 
-pub fn zlib_decompress(sha1: &str, buffer: &mut Vec<u8>) {
-    let folder = &sha1[..2];
-    let file = &sha1[2..];
-    let raw_content = fs::File::open(format!(".gitrs/objects/{folder}/{file}"))
+pub fn zlib_decompress(path: &str, buffer: &mut Vec<u8>) {
+    let raw_content = fs::File::open(path)
         .expect("[ERROR] Couldn't read blob file.");
     let decoder = ZlibDecoder::new(raw_content);
     let mut decoder = BufReader::new(decoder);

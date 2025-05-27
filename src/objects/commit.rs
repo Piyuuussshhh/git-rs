@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     constants::COMMIT_MESSAGE,
-    traits::{ObjectDeserialize, ObjectSerialize},
+    objects::GitObject,
     utils::kvlm_parse,
 };
 
@@ -23,8 +23,11 @@ impl Commit {
     }
 }
 
-impl ObjectSerialize for Commit {
-    fn serialize(&self, _: &str) -> String {
+impl GitObject for Commit {
+    type SerializerArg<'a> = ();
+    type DeserializerArg<'b> = &'b str;
+
+    fn serialize(&self, _: ()) -> String {
         let mut content = String::new();
 
         for key in self.fields.keys() {
@@ -52,11 +55,8 @@ impl ObjectSerialize for Commit {
                 .get(COMMIT_MESSAGE)
                 .expect("[ERROR] No commit message")
     }
-}
 
-impl ObjectDeserialize<Self> for Commit {
-    fn deserialize(data: &str) -> Self {
-        let fields = kvlm_parse(data);
-        Self { fields }
+    fn deserialize(&mut self, data: &str) {
+        self.fields = kvlm_parse(data);
     }
 }
