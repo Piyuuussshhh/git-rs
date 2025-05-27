@@ -1,7 +1,7 @@
 use flate2::{write::ZlibEncoder, Compression};
 use regex::Regex;
 use std::{
-    fs::{create_dir, write, File},
+    fs,
     io::{BufReader, Read, Write},
 };
 
@@ -23,7 +23,7 @@ impl ObjectSerialize for Blob {
         // Opening the file containing all the content that needs to be versioned.
         // !PLEASE FOR THE LOVE OF GOD MAKE SURE THAT THE TEXT FILE IS UTF-8 ENCODED AND NOT ANYTHING ELSE LIKE UTF8 WITH BOM OR UTF16 LE OR SOME SHIT.
         let file =
-            File::open(path).expect("[ERROR] Couldn't read the file that needs to be compressed.");
+            fs::File::open(path).expect("[ERROR] Couldn't read the file that needs to be compressed.");
         let mut buf = BufReader::new(file);
         let mut content = String::new();
         let size = buf
@@ -45,8 +45,8 @@ impl ObjectSerialize for Blob {
             .expect("[ERROR] Couldn't compress header+content");
 
         // Creating the git object file.
-        create_dir(format!(".gitrs/objects/{}", &sha1[..2])).unwrap();
-        write(
+        fs::create_dir(format!(".gitrs/objects/{}", &sha1[..2])).unwrap();
+        fs::write(
             format!(".gitrs/objects/{}/{}", &sha1[..2], &sha1[2..]),
             buffer,
         )
